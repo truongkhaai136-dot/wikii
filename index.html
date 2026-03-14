@@ -14,6 +14,7 @@
         button { background-color: #4CAF50; color: white; padding: 12px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; width: 100%; font-weight: bold; transition: background-color 0.3s; }
         button:hover { background-color: #45a049; }
         .step-box { border: 1px solid #ddd; border-radius: 6px; margin-top: 20px; padding: 15px; background-color: #fafafa; }
+        .intro-box { background-color: #e8f4f8; border-color: #b3e5fc; } /* Màu nền riêng cho phần mở đầu */
         .step-number { font-size: 1.2em; font-weight: bold; color: #0073e6; margin-bottom: 15px; border-bottom: 2px solid #0073e6; display: inline-block; padding-bottom: 5px; }
         .text-de { font-weight: bold; color: #2c3e50; margin-bottom: 20px; border-bottom: 1px dashed #ccc; padding-bottom: 15px; }
         .text-vn { color: #555; }
@@ -22,11 +23,7 @@
         .error { color: red; }
         .success { color: green; }
         
-        /* CSS chia dòng và làm nổi bật số thứ tự câu */
-        .sentence-item { 
-            margin: 8px 0; /* Khoảng cách giữa các dòng/câu */
-            line-height: 1.8;
-        }
+        .sentence-item { margin: 8px 0; line-height: 1.8; }
         .sentence-num {
             display: inline-block;
             background-color: #ffeb3b;
@@ -39,13 +36,8 @@
             box-shadow: 1px 1px 2px rgba(0,0,0,0.1);
             vertical-align: text-bottom;
         }
-        .section-label {
-            font-size: 0.9em;
-            color: #888;
-            text-transform: uppercase;
-            margin-bottom: 10px;
-            display: block;
-        }
+        .section-label { font-size: 0.9em; color: #888; text-transform: uppercase; margin-bottom: 10px; display: block; }
+        .article-title { font-size: 1.4em; color: #c0392b; margin-bottom: 10px; text-transform: uppercase;}
     </style>
 </head>
 <body>
@@ -53,7 +45,7 @@
 <div class="container">
     <h1>Công cụ ghép song ngữ WikiHow</h1>
     <p style="text-align: center; color: #d35400; font-size: 0.9em;">
-        <i>⚠️ Nhớ BẬT tiện ích "Allow CORS" trên trình duyệt trước khi bấm nút chạy nhé!</i>
+        <i>⚠️ Nhớ BẬT tiện ích "Allow CORS" trên trình duyệt trước khi chạy!</i>
     </p>
     
     <div class="input-group">
@@ -72,19 +64,18 @@
 </div>
 
 <script>
-    // Gọi TRỰC TIẾP đến đường link, không dùng qua bất kỳ proxy nào nữa
     async function fetchHtml(url) {
         const response = await fetch(url);
         if (!response.ok) {
-            throw new Error(`Không thể lấy dữ liệu (Mã lỗi: ${response.status}). Vui lòng kiểm tra lại link hoặc chắc chắn bạn đã BẬT tiện ích Allow CORS!`);
+            throw new Error(`Không thể lấy dữ liệu (Mã lỗi: ${response.status}). Vui lòng kiểm tra lại link hoặc bật Allow CORS!`);
         }
         const htmlText = await response.text();
         const parser = new DOMParser();
         return parser.parseFromString(htmlText, "text/html");
     }
 
-    // Hàm phân tách câu, đánh số thứ tự và cho mỗi câu xuống dòng
     function danhSoThuTuCau(text) {
+        if (!text) return '';
         let lines = text.split('\n'); 
         let resultHtml = '';
         let count = 1; 
@@ -93,14 +84,12 @@
             let trimmed = line.trim();
             if (!trimmed) return;
 
-            // Tách câu dựa trên dấu chấm, chấm than, hỏi chấm
             let sentences = trimmed.match(/.*?[.?!]+(?:["'”]*)(?:\s+|$)|.+/g);
             
             if (sentences) {
                 sentences.forEach(s => {
                     let sTrim = s.trim();
                     if (sTrim) {
-                        // Thẻ <div> giúp mỗi câu tự động rớt xuống dòng
                         resultHtml += `<div class="sentence-item"><span class="sentence-num">${count}</span>${sTrim}</div>`;
                         count++;
                     }
@@ -108,6 +97,23 @@
             }
         });
         return resultHtml;
+    }
+
+    // Hàm phụ để trích xuất Tiêu đề và Phần mở đầu
+    function layTieuDeVaMoDau(doc) {
+        let title = doc.querySelector('h1') ? doc.querySelector('h1').innerText.trim() : 'Không tìm thấy Tiêu đề';
+        
+        // Lấy các thẻ <p> nằm trong phần giới thiệu (#intro)
+        let introParagraphs = doc.querySelectorAll('#intro p');
+        let introText = '';
+        if (introParagraphs.length > 0) {
+            introParagraphs.forEach(p => introText += p.innerText + '\n');
+        } else {
+            // Backup trường hợp giao diện WikiHow thay đổi
+            introText = doc.querySelector('#intro') ? doc.querySelector('#intro').innerText.trim() : '';
+        }
+        
+        return { title, introText };
     }
 
     async function batDauGhep() {
@@ -121,22 +127,45 @@
             return;
         }
 
-        statusDiv.innerHTML = '<span class="loading">Đang lấy dữ liệu trực tiếp siêu tốc... ⚡</span>';
+        statusDiv.innerHTML = '<span class="loading">Đang lấy dữ liệu... ⚡</span>';
         contentDiv.innerHTML = ''; 
 
         try {
             const [docGoc, docDich] = await Promise.all([fetchHtml(urlGoc), fetchHtml(urlDich)]);
 
+            // 1. LẤY TIÊU ĐỀ VÀ PHẦN MỞ ĐẦU
+            const modauGoc = layTieuDeVaMoDau(docGoc);
+            const modauDich = layTieuDeVaMoDau(docDich);
+
+            // Tạo Box hiển thị phần Mở đầu (Có màu nền khác một chút để phân biệt)
+            const introBox = document.createElement('div');
+            introBox.className = 'step-box intro-box';
+            introBox.innerHTML = `
+                <div class="step-number">Phần Mở Đầu</div>
+                <div class="text-de">
+                    <span class="section-label">🌐 BẢN GỐC (Tiếng Đức/Anh)</span>
+                    <div class="article-title">${modauGoc.title}</div>
+                    ${danhSoThuTuCau(modauGoc.introText)}
+                </div>
+                <div class="text-vn">
+                    <span class="section-label">🇻🇳 BẢN DỊCH (Tiếng Việt)</span>
+                    <div class="article-title">${modauDich.title}</div>
+                    ${danhSoThuTuCau(modauDich.introText)}
+                </div>
+            `;
+            contentDiv.appendChild(introBox);
+
+            // 2. LẤY CÁC BƯỚC NHƯ CŨ
             const stepsGoc = docGoc.querySelectorAll('.step');
             const stepsDich = docDich.querySelectorAll('.step');
 
             if (stepsGoc.length === 0 || stepsDich.length === 0) {
-                statusDiv.innerHTML = '<span class="error">Không tìm thấy nội dung bài viết. Hãy chắc chắn link bạn dán là của WikiHow!</span>';
+                statusDiv.innerHTML = '<span class="success">Đã tải phần mở đầu (Bài viết này không chia theo định dạng Bước).</span>';
                 return;
             }
 
             const maxSteps = Math.min(stepsGoc.length, stepsDich.length);
-            statusDiv.innerHTML = `<span class="success">✅ Thành công! Đã ghép nối ${maxSteps} bước bài viết.</span>`;
+            statusDiv.innerHTML = `<span class="success">✅ Thành công! Đã ghép nối Mở đầu và ${maxSteps} bước bài viết.</span>`;
 
             for (let i = 0; i < maxSteps; i++) {
                 let textGocHtml = danhSoThuTuCau(stepsGoc[i].innerText);
@@ -158,7 +187,7 @@
                 contentDiv.appendChild(stepBox);
             }
         } catch (error) {
-            statusDiv.innerHTML = `<span class="error">❌ Có lỗi xảy ra: ${error.message} <br>(Bạn đã bật tiện ích Allow CORS trên góc phải trình duyệt chưa?)</span>`;
+            statusDiv.innerHTML = `<span class="error">❌ Có lỗi xảy ra: ${error.message}</span>`;
         }
     }
 </script>
