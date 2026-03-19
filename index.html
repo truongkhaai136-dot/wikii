@@ -1,226 +1,226 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Công cụ ghép song ngữ WikiHow</title>
-    <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f7f6; padding: 20px; line-height: 1.6; }
-        .container { max-width: 1000px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        h1 { text-align: center; color: #333; }
-        .input-group { margin-bottom: 15px; }
-        .input-group label { font-weight: bold; display: block; margin-bottom: 5px; }
-        .input-group input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 16px; }
-        button { background-color: #4CAF50; color: white; padding: 12px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; width: 100%; font-weight: bold; transition: background-color 0.3s; }
-        button:hover { background-color: #45a049; }
-        .step-box { border: 1px solid #ddd; border-radius: 6px; margin-top: 20px; padding: 15px; background-color: #fafafa; }
-        .intro-box { background-color: #e8f4f8; border-color: #b3e5fc; }
-        .step-number { font-size: 1.2em; font-weight: bold; color: #0073e6; margin-bottom: 15px; border-bottom: 2px solid #0073e6; display: inline-block; padding-bottom: 5px; }
-        
-        /* --- CSS cho cấu trúc 2 cột --- */
-        .content-split {
-            display: flex;
-            gap: 20px;
-        }
-        .text-de { 
-            flex: 1;
-            font-weight: bold; 
-            color: #2c3e50; 
-            border-right: 1px dashed #ccc;
-            padding-right: 20px; 
-        }
-        .text-vn { 
-            flex: 1;
-            color: #555; 
-        }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Công cụ ghép song ngữ WikiHow</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f7f6; padding: 20px; line-height: 1.6; }
+        .container { max-width: 1000px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #333; }
+        .input-group { margin-bottom: 15px; }
+        .input-group label { font-weight: bold; display: block; margin-bottom: 5px; }
+        .input-group input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 16px; }
+        button { background-color: #4CAF50; color: white; padding: 12px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; width: 100%; font-weight: bold; transition: background-color 0.3s; }
+        button:hover { background-color: #45a049; }
+        .step-box { border: 1px solid #ddd; border-radius: 6px; margin-top: 20px; padding: 15px; background-color: #fafafa; }
+        .intro-box { background-color: #e8f4f8; border-color: #b3e5fc; }
+        .step-number { font-size: 1.2em; font-weight: bold; color: #0073e6; margin-bottom: 15px; border-bottom: 2px solid #0073e6; display: inline-block; padding-bottom: 5px; }
+        
+        /* --- CSS cho cấu trúc 2 cột --- */
+        .content-split {
+            display: flex;
+            gap: 20px;
+        }
+        .text-de { 
+            flex: 1;
+            font-weight: bold; 
+            color: #2c3e50; 
+            border-right: 1px dashed #ccc;
+            padding-right: 20px; 
+        }
+        .text-vn { 
+            flex: 1;
+            color: #555; 
+        }
 
-        /* --- Tự động gập thành 1 cột trên điện thoại --- */
-        @media (max-width: 768px) {
-            .content-split {
-                flex-direction: column;
-            }
-            .text-de {
-                border-right: none;
-                border-bottom: 1px dashed #ccc;
-                padding-right: 0;
-                padding-bottom: 15px;
-                margin-bottom: 15px;
-            }
-        }
+        /* --- Tự động gập thành 1 cột trên điện thoại --- */
+        @media (max-width: 768px) {
+            .content-split {
+                flex-direction: column;
+            }
+            .text-de {
+                border-right: none;
+                border-bottom: 1px dashed #ccc;
+                padding-right: 0;
+                padding-bottom: 15px;
+                margin-bottom: 15px;
+            }
+        }
 
-        #status { text-align: center; font-size: 1.1em; margin-top: 15px; font-weight: bold; }
-        .loading { color: #e67e22; }
-        .error { color: red; }
-        .success { color: green; }
-        
-        .sentence-item { margin: 8px 0; line-height: 1.8; }
-        .sentence-num {
-            display: inline-block;
-            background-color: #ffeb3b;
-            color: #d35400;
-            font-size: 0.85em;
-            font-weight: bold;
-            padding: 2px 8px;
-            border-radius: 4px;
-            margin-right: 8px;
-            box-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-            vertical-align: text-bottom;
-        }
-        .section-label { font-size: 0.9em; color: #888; text-transform: uppercase; margin-bottom: 10px; display: block; }
-        .article-title { font-size: 1.4em; color: #c0392b; margin-bottom: 10px; text-transform: uppercase;}
-    </style>
+        #status { text-align: center; font-size: 1.1em; margin-top: 15px; font-weight: bold; }
+        .loading { color: #e67e22; }
+        .error { color: red; }
+        .success { color: green; }
+        
+        .sentence-item { margin: 8px 0; line-height: 1.8; }
+        .sentence-num {
+            display: inline-block;
+            background-color: #ffeb3b;
+            color: #d35400;
+            font-size: 0.85em;
+            font-weight: bold;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-right: 8px;
+            box-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            vertical-align: text-bottom;
+        }
+        .section-label { font-size: 0.9em; color: #888; text-transform: uppercase; margin-bottom: 10px; display: block; }
+        .article-title { font-size: 1.4em; color: #c0392b; margin-bottom: 10px; text-transform: uppercase;}
+    </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Công cụ ghép song ngữ WikiHow</h1>
-    <div class="input-group">
-        <label>🔗 Dán Link Bản Gốc (VD: Tiếng Đức, Anh):</label>
-        <input type="text" id="linkGoc" placeholder="https://de.wikihow.com/...">
-    </div>
-    <div class="input-group">
-        <label>🔗 Dán Link Bản Dịch (VD: Tiếng Việt):</label>
-        <input type="text" id="linkDich" placeholder="https://www.wikihow.vn/...">
-    </div>
-    
-    <button onclick="batDauGhep()">Bắt đầu ghép nối</button>
+    <h1>Công cụ ghép song ngữ WikiHow</h1>
+    <p style="text-align: center; color: #d35400; font-size: 0.9em;">
+        <i>⚠️ Nhớ BẬT tiện ích "Allow CORS" trên trình duyệt trước khi chạy!</i>
+    </p>
+    
+    <div class="input-group">
+        <label>🔗 Dán Link Bản Gốc (VD: Tiếng Đức, Anh):</label>
+        <input type="text" id="linkGoc" placeholder="https://de.wikihow.com/...">
+    </div>
+    <div class="input-group">
+        <label>🔗 Dán Link Bản Dịch (VD: Tiếng Việt):</label>
+        <input type="text" id="linkDich" placeholder="https://www.wikihow.vn/...">
+    </div>
+    
+    <button onclick="batDauGhep()">Bắt đầu ghép nối</button>
 
-    <div id="status"></div>
-    <div id="content"></div>
+    <div id="status"></div>
+    <div id="content"></div>
 </div>
 
 <script>
-    async function fetchHtml(url) {
-        // Sử dụng AllOrigins CORS Proxy để tải trang web mà không bị chặn
-        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-        const response = await fetch(proxyUrl);
-        
-        if (!response.ok) {
-            throw new Error(`Không thể lấy dữ liệu (Mã lỗi: ${response.status}). Vui lòng kiểm tra lại link!`);
-        }
-        
-        const data = await response.json();
-        const parser = new DOMParser();
-        return parser.parseFromString(data.contents, "text/html");
-    }
+    async function fetchHtml(url) {
+        // Quay lại dùng fetch trực tiếp (Yêu cầu bật CORS Extension)
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Không thể lấy dữ liệu (Mã lỗi: ${response.status}). Vui lòng kiểm tra lại link hoặc bật Allow CORS!`);
+        }
+        const htmlText = await response.text();
+        const parser = new DOMParser();
+        return parser.parseFromString(htmlText, "text/html");
+    }
 
-    function danhSoThuTuCau(text) {
-        if (!text) return '';
-        let lines = text.split('\n'); 
-        let resultHtml = '';
-        let count = 1; 
+    function danhSoThuTuCau(text) {
+        if (!text) return '';
+        let lines = text.split('\n'); 
+        let resultHtml = '';
+        let count = 1; 
 
-        lines.forEach(line => {
-            let trimmed = line.trim();
-            if (!trimmed) return;
+        lines.forEach(line => {
+            let trimmed = line.trim();
+            if (!trimmed) return;
 
-            // Regex tách câu cơ bản
-            let sentences = trimmed.match(/.*?[.?!]+(?:["'”]*)(?:\s+|$)|.+/g);
-            
-            if (sentences) {
-                sentences.forEach(s => {
-                    let sTrim = s.trim();
-                    if (sTrim) {
-                        resultHtml += `<div class="sentence-item"><span class="sentence-num">${count}</span>${sTrim}</div>`;
-                        count++;
-                    }
-                });
-            }
-        });
-        return resultHtml;
-    }
+            let sentences = trimmed.match(/.*?[.?!]+(?:["'”]*)(?:\s+|$)|.+/g);
+            
+            if (sentences) {
+                sentences.forEach(s => {
+                    let sTrim = s.trim();
+                    if (sTrim) {
+                        resultHtml += `<div class="sentence-item"><span class="sentence-num">${count}</span>${sTrim}</div>`;
+                        count++;
+                    }
+                });
+            }
+        });
+        return resultHtml;
+    }
 
-    function layTieuDeVaMoDau(doc) {
-        let title = doc.querySelector('h1') ? doc.querySelector('h1').innerText.trim() : 'Không tìm thấy Tiêu đề';
-        
-        let introParagraphs = doc.querySelectorAll('#intro p');
-        let introText = '';
-        if (introParagraphs.length > 0) {
-            introParagraphs.forEach(p => introText += p.innerText + '\n');
-        } else {
-            introText = doc.querySelector('#intro') ? doc.querySelector('#intro').innerText.trim() : '';
-        }
-        
-        return { title, introText };
-    }
+    function layTieuDeVaMoDau(doc) {
+        let title = doc.querySelector('h1') ? doc.querySelector('h1').innerText.trim() : 'Không tìm thấy Tiêu đề';
+        
+        let introParagraphs = doc.querySelectorAll('#intro p');
+        let introText = '';
+        if (introParagraphs.length > 0) {
+            introParagraphs.forEach(p => introText += p.innerText + '\n');
+        } else {
+            introText = doc.querySelector('#intro') ? doc.querySelector('#intro').innerText.trim() : '';
+        }
+        
+        return { title, introText };
+    }
 
-    async function batDauGhep() {
-        const urlGoc = document.getElementById('linkGoc').value.trim();
-        const urlDich = document.getElementById('linkDich').value.trim();
-        const statusDiv = document.getElementById('status');
-        const contentDiv = document.getElementById('content');
+    async function batDauGhep() {
+        const urlGoc = document.getElementById('linkGoc').value.trim();
+        const urlDich = document.getElementById('linkDich').value.trim();
+        const statusDiv = document.getElementById('status');
+        const contentDiv = document.getElementById('content');
 
-        if (!urlGoc || !urlDich) {
-            statusDiv.innerHTML = '<span class="error">Vui lòng dán đầy đủ cả 2 link trước khi chạy!</span>';
-            return;
-        }
+        if (!urlGoc || !urlDich) {
+            statusDiv.innerHTML = '<span class="error">Vui lòng dán đầy đủ cả 2 link trước khi chạy!</span>';
+            return;
+        }
 
-        statusDiv.innerHTML = '<span class="loading">Đang lấy dữ liệu qua hệ thống trung gian... ⚡</span>';
-        contentDiv.innerHTML = ''; 
+        statusDiv.innerHTML = '<span class="loading">Đang lấy dữ liệu... ⚡</span>';
+        contentDiv.innerHTML = ''; 
 
-        try {
-            const [docGoc, docDich] = await Promise.all([fetchHtml(urlGoc), fetchHtml(urlDich)]);
+        try {
+            const [docGoc, docDich] = await Promise.all([fetchHtml(urlGoc), fetchHtml(urlDich)]);
 
-            // 1. LẤY TIÊU ĐỀ VÀ PHẦN MỞ ĐẦU
-            const modauGoc = layTieuDeVaMoDau(docGoc);
-            const modauDich = layTieuDeVaMoDau(docDich);
+            // 1. LẤY TIÊU ĐỀ VÀ PHẦN MỞ ĐẦU
+            const modauGoc = layTieuDeVaMoDau(docGoc);
+            const modauDich = layTieuDeVaMoDau(docDich);
 
-            const introBox = document.createElement('div');
-            introBox.className = 'step-box intro-box';
-            introBox.innerHTML = `
-                <div class="step-number">Phần Mở Đầu</div>
-                <div class="content-split">
-                    <div class="text-de">
-                        <span class="section-label">🌐 BẢN GỐC</span>
-                        <div class="article-title">${modauGoc.title}</div>
-                        ${danhSoThuTuCau(modauGoc.introText)}
-                    </div>
-                    <div class="text-vn">
-                        <span class="section-label">🇻🇳 BẢN DỊCH (Tiếng Việt)</span>
-                        <div class="article-title">${modauDich.title}</div>
-                        ${danhSoThuTuCau(modauDich.introText)}
-                    </div>
-                </div>
-            `;
-            contentDiv.appendChild(introBox);
+            const introBox = document.createElement('div');
+            introBox.className = 'step-box intro-box';
+            introBox.innerHTML = `
+                <div class="step-number">Phần Mở Đầu</div>
+                <div class="content-split">
+                    <div class="text-de">
+                        <span class="section-label">🌐 BẢN GỐC</span>
+                        <div class="article-title">${modauGoc.title}</div>
+                        ${danhSoThuTuCau(modauGoc.introText)}
+                    </div>
+                    <div class="text-vn">
+                        <span class="section-label">🇻🇳 BẢN DỊCH (Tiếng Việt)</span>
+                        <div class="article-title">${modauDich.title}</div>
+                        ${danhSoThuTuCau(modauDich.introText)}
+                    </div>
+                </div>
+            `;
+            contentDiv.appendChild(introBox);
 
-            // 2. LẤY CÁC BƯỚC BÀI VIẾT
-            const stepsGoc = docGoc.querySelectorAll('.step');
-            const stepsDich = docDich.querySelectorAll('.step');
+            // 2. LẤY CÁC BƯỚC BÀI VIẾT
+            const stepsGoc = docGoc.querySelectorAll('.step');
+            const stepsDich = docDich.querySelectorAll('.step');
 
-            if (stepsGoc.length === 0 || stepsDich.length === 0) {
-                statusDiv.innerHTML = '<span class="success">Đã tải phần mở đầu (Bài viết này không chia theo định dạng Bước).</span>';
-                return;
-            }
+            if (stepsGoc.length === 0 || stepsDich.length === 0) {
+                statusDiv.innerHTML = '<span class="success">Đã tải phần mở đầu (Bài viết này không chia theo định dạng Bước).</span>';
+                return;
+            }
 
-            const maxSteps = Math.min(stepsGoc.length, stepsDich.length);
-            statusDiv.innerHTML = `<span class="success">✅ Thành công! Đã ghép nối Mở đầu và ${maxSteps} bước bài viết.</span>`;
+            const maxSteps = Math.min(stepsGoc.length, stepsDich.length);
+            statusDiv.innerHTML = `<span class="success">✅ Thành công! Đã ghép nối Mở đầu và ${maxSteps} bước bài viết.</span>`;
 
-            for (let i = 0; i < maxSteps; i++) {
-                let textGocHtml = danhSoThuTuCau(stepsGoc[i].innerText);
-                let textDichHtml = danhSoThuTuCau(stepsDich[i].innerText);
+            for (let i = 0; i < maxSteps; i++) {
+                let textGocHtml = danhSoThuTuCau(stepsGoc[i].innerText);
+                let textDichHtml = danhSoThuTuCau(stepsDich[i].innerText);
 
-                const stepBox = document.createElement('div');
-                stepBox.className = 'step-box';
-                stepBox.innerHTML = `
-                    <div class="step-number">Bước ${i + 1}</div>
-                    <div class="content-split">
-                        <div class="text-de">
-                            <span class="section-label">🌐 BẢN GỐC</span>
-                            ${textGocHtml}
-                        </div>
-                        <div class="text-vn">
-                            <span class="section-label">🇻🇳 BẢN DỊCH (Tiếng Việt)</span>
-                            ${textDichHtml}
-                        </div>
-                    </div>
-                `;
-                contentDiv.appendChild(stepBox);
-            }
-        } catch (error) {
-            statusDiv.innerHTML = `<span class="error">❌ Có lỗi xảy ra: ${error.message}</span>`;
-        }
-    }
+                const stepBox = document.createElement('div');
+                stepBox.className = 'step-box';
+                stepBox.innerHTML = `
+                    <div class="step-number">Bước ${i + 1}</div>
+                    <div class="content-split">
+                        <div class="text-de">
+                            <span class="section-label">🌐 BẢN GỐC</span>
+                            ${textGocHtml}
+                        </div>
+                        <div class="text-vn">
+                            <span class="section-label">🇻🇳 BẢN DỊCH (Tiếng Việt)</span>
+                            ${textDichHtml}
+                        </div>
+                    </div>
+                `;
+                contentDiv.appendChild(stepBox);
+            }
+        } catch (error) {
+            statusDiv.innerHTML = `<span class="error">❌ Có lỗi xảy ra: ${error.message}</span>`;
+        }
+    }
 </script>
 
 </body>
