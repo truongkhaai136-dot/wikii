@@ -86,7 +86,13 @@
         }
         const htmlText = await response.text();
         const parser = new DOMParser();
-        return parser.parseFromString(htmlText, "text/html");
+        const doc = parser.parseFromString(htmlText, "text/html");
+
+        // --- BỘ LỌC RÁC: Xóa sạch toàn bộ thẻ script, style, noscript để không bị lọt code vào text ---
+        const ruyBangRac = doc.querySelectorAll('script, style, noscript');
+        ruyBangRac.forEach(node => node.remove());
+
+        return doc;
     }
 
     function danhSoThuTuCau(text) {
