@@ -101,11 +101,10 @@
 <script>
     // Hàm fetch có tích hợp sẵn CorsProxy để không cần bật Allow CORS thủ công
     async function fetchHtml(url) {
-        // Dùng proxy để vượt rào CORS
-        const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
-        const response = await fetch(proxyUrl);
+        // Trở lại cách lấy trực tiếp - BẮT BUỘC BẬT TIỆN ÍCH ALLOW CORS BÊN NGOÀI
+        const response = await fetch(url);
         if (!response.ok) {
-            throw new Error(`Không thể lấy dữ liệu (Mã lỗi: ${response.status}). Có thể link sai hoặc website chặn.`);
+            throw new Error(`Mã lỗi: ${response.status}. Hãy chắc chắn bạn đã BẬT tiện ích Allow CORS trên trình duyệt!`);
         }
         const htmlText = await response.text();
         const parser = new DOMParser();
