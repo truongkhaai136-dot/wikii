@@ -88,8 +88,18 @@
         const parser = new DOMParser();
         const doc = parser.parseFromString(htmlText, "text/html");
 
-        // --- BỘ LỌC RÁC: Xóa sạch toàn bộ thẻ script, style, noscript để không bị lọt code vào text ---
-        const ruyBangRac = doc.querySelectorAll('script, style, noscript');
+        // --- BỘ LỌC RÁC SIÊU CẤP ---
+        // Xóa sạch các thẻ HTML chứa mã ngầm, trích dẫn, tên chuyên gia, nút bấm...
+        const ruyBangRac = doc.querySelectorAll(`
+            script, style, noscript, 
+            sup.reference, .reference, /* Số trích dẫn [4], [1]... */
+            .expert_source, .expert_interview, .expert_name, .sp_expert, .expert-quotes, /* Khối thông tin chuyên gia */
+            .sp_reference, .vi_reference, a.external.text, /* Link "Nguồn nghiên cứu" */
+            .mw-editsection, /* Nút Edit */
+            button, .close-button, /* Các nút bấm UI chứa chữ X */
+            .toc_ul /* Mục lục thả xuống chứa 'Show less' */
+        `);
+        
         ruyBangRac.forEach(node => node.remove());
 
         return doc;
@@ -103,9 +113,10 @@
 
         lines.forEach(line => {
             let trimmed = line.trim();
-            if (!trimmed) return;
+            // BỎ QUA các dòng rác quá ngắn (như chữ X, các số lạc loài) hoặc trống
+            if (!trimmed || trimmed.length <= 2) return;
 
-            // Xử lý dòng danh sách (nguyên liệu) không có dấu chấm cuối câu
+            // Xử lý dòng danh sách không có dấu chấm cuối câu (như nguyên liệu)
             if (!/[.?!]/.test(trimmed) || trimmed.length < 25) {
                 resultHtml += `<div class="sentence-item"><span class="sentence-num">${count}</span>${trimmed}</div>`;
                 count++;
@@ -116,7 +127,8 @@
             if (sentences) {
                 sentences.forEach(s => {
                     let sTrim = s.trim();
-                    if (sTrim) {
+                    // Chỉ đánh số những câu có độ dài hợp lý
+                    if (sTrim && sTrim.length > 2) {
                         resultHtml += `<div class="sentence-item"><span class="sentence-num">${count}</span>${sTrim}</div>`;
                         count++;
                     }
@@ -126,16 +138,15 @@
         return resultHtml;
     }
 
-    // HÀM MỚI: Dò tìm cực mạnh (Leo cả lên thẻ cha nếu cần)
+    // Dò tìm cực mạnh (Leo cả lên thẻ cha nếu cần)
     function layNoiDungPhan(doc, selectors) {
         let node = doc.querySelector(selectors);
         if (!node) return '';
         
-        // Nếu selector chỉ bắt trúng thẻ Tiêu đề (SPAN, H2, H3), nó sẽ leo lên thẻ DIV bọc ngoài để lấy trọn nội dung
+        // Nếu selector chỉ bắt trúng thẻ Tiêu đề, nó sẽ leo lên thẻ DIV bọc ngoài để lấy trọn nội dung
         if (node.tagName === 'SPAN' || node.tagName === 'H2' || node.tagName === 'H3') {
             let wrapper = node.closest('.section');
             if (wrapper) return wrapper.innerText.trim();
-            // Phương án dự phòng nếu web không có class .section
             return node.parentElement.innerText.trim();
         }
         return node.innerText.trim();
@@ -159,7 +170,7 @@
             return;
         }
 
-        statusDiv.innerHTML = '<span class="loading">Đang phân tích và dò tìm các lớp ẩn... ⚡</span>';
+        statusDiv.innerHTML = '<span class="loading">Đang phân tích, lọc rác và dò tìm các lớp ẩn... ⚡</span>';
         contentDiv.innerHTML = ''; 
 
         try {
@@ -238,7 +249,7 @@
                 renderBox(phan.title, textGoc, textDich, phan.cssClass);
             }
 
-            statusDiv.innerHTML = `<span class="success">✅ Hoàn tất! Đã quét xuyên qua các ID ẩn của ngôn ngữ.</span>`;
+            statusDiv.innerHTML = `<span class="success">✅ Hoàn tất! Mã nguồn đã được lọc sạch sẽ và căn chỉnh.</span>`;
 
         } catch (error) {
             statusDiv.innerHTML = `<span class="error">❌ Có lỗi xảy ra: ${error.message}</span>`;
