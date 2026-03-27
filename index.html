@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Công cụ ghép song ngữ WikiHow Pro</title>
+    <title>Công cụ ghép song ngữ WikiHow Pro Max</title>
     <style>
         body { font-family: Arial, sans-serif; background-color: #f4f7f6; padding: 20px; line-height: 1.6; }
         .container { max-width: 1000px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
@@ -17,7 +17,7 @@
         .step-box { border: 1px solid #ddd; border-radius: 6px; margin-top: 20px; padding: 15px; background-color: #fafafa; }
         .intro-box { background-color: #e8f4f8; border-color: #b3e5fc; }
         .extra-box { background-color: #fff9e6; border-color: #ffe082; }
-        .ingredient-box { background-color: #e8f5e9; border-color: #a5d6a7; } /* Màu xanh lá cho Nguyên liệu */
+        .ingredient-box { background-color: #e8f5e9; border-color: #a5d6a7; }
         
         /* Bố cục chia đôi */
         .bilingual-row { display: flex; gap: 20px; align-items: flex-start; }
@@ -47,6 +47,7 @@
         }
         .section-label { font-size: 0.9em; color: #888; text-transform: uppercase; margin-bottom: 10px; display: block; font-weight: normal;}
         .article-title { font-size: 1.4em; color: #c0392b; margin-bottom: 10px; text-transform: uppercase; font-weight: bold;}
+        .empty-note { color: #999; font-style: italic; }
 
         @media (max-width: 768px) {
             .bilingual-row { flex-direction: column; }
@@ -57,7 +58,7 @@
 <body>
 
 <div class="container">
-    <h1>Công cụ ghép song ngữ WikiHow Pro</h1>
+    <h1>Công cụ ghép song ngữ WikiHow Pro Max</h1>
     <p style="text-align: center; color: #d35400; font-size: 0.9em;">
         <i>⚠️ Hãy chắc chắn bạn đã BẬT tiện ích "Allow CORS" trên trình duyệt nhé!</i>
     </p>
@@ -78,7 +79,6 @@
 </div>
 
 <script>
-    // Trở lại dùng Fetch trực tiếp để tránh lỗi 403 từ Proxy (Yêu cầu bật Allow CORS extension)
     async function fetchHtml(url) {
         const response = await fetch(url);
         if (!response.ok) {
@@ -89,7 +89,6 @@
         return parser.parseFromString(htmlText, "text/html");
     }
 
-    // Hàm tách câu đã được nâng cấp để xử lý tốt Nguyên liệu & List không có dấu chấm
     function danhSoThuTuCau(text) {
         if (!text) return '';
         let lines = text.split('\n'); 
@@ -100,14 +99,13 @@
             let trimmed = line.trim();
             if (!trimmed) return;
 
-            // Nếu dòng là một tiêu đề phụ ngắn hoặc không chứa dấu chấm/hỏi/than (như danh sách nguyên liệu)
+            // Xử lý dòng danh sách (nguyên liệu) không có dấu chấm cuối câu
             if (!/[.?!]/.test(trimmed) || trimmed.length < 25) {
                 resultHtml += `<div class="sentence-item"><span class="sentence-num">${count}</span>${trimmed}</div>`;
                 count++;
                 return;
             }
 
-            // Tách các câu bình thường
             let sentences = trimmed.match(/.*?[.?!]+(?:["'”]*)(?:\s+|$)|.+/g);
             if (sentences) {
                 sentences.forEach(s => {
@@ -122,7 +120,21 @@
         return resultHtml;
     }
 
-    // Lấy toàn bộ khối Intro (bao gồm cả Mục lục)
+    // HÀM MỚI: Dò tìm cực mạnh (Leo cả lên thẻ cha nếu cần)
+    function layNoiDungPhan(doc, selectors) {
+        let node = doc.querySelector(selectors);
+        if (!node) return '';
+        
+        // Nếu selector chỉ bắt trúng thẻ Tiêu đề (SPAN, H2, H3), nó sẽ leo lên thẻ DIV bọc ngoài để lấy trọn nội dung
+        if (node.tagName === 'SPAN' || node.tagName === 'H2' || node.tagName === 'H3') {
+            let wrapper = node.closest('.section');
+            if (wrapper) return wrapper.innerText.trim();
+            // Phương án dự phòng nếu web không có class .section
+            return node.parentElement.innerText.trim();
+        }
+        return node.innerText.trim();
+    }
+
     function layTieuDeVaMoDau(doc) {
         let title = doc.querySelector('h1') ? doc.querySelector('h1').innerText.trim() : 'Không tìm thấy Tiêu đề';
         let introNode = doc.querySelector('#intro') || doc.querySelector('.mf-section-0');
@@ -141,22 +153,20 @@
             return;
         }
 
-        statusDiv.innerHTML = '<span class="loading">Đang phân tích bài viết đa định dạng... ⚡</span>';
+        statusDiv.innerHTML = '<span class="loading">Đang phân tích và dò tìm các lớp ẩn... ⚡</span>';
         contentDiv.innerHTML = ''; 
 
         try {
             const [docGoc, docDich] = await Promise.all([fetchHtml(urlGoc), fetchHtml(urlDich)]);
 
-            // 1. LẤY MỞ ĐẦU (Bao gồm Mục lục)
+            // 1. MỞ ĐẦU
             const modauGoc = layTieuDeVaMoDau(docGoc);
             const modauDich = layTieuDeVaMoDau(docDich);
 
             const introBox = document.createElement('div');
             introBox.className = 'step-box intro-box';
             introBox.innerHTML = `
-                <div class="step-header">
-                    <div class="step-number">Phần Mở Đầu & Mục Lục</div>
-                </div>
+                <div class="step-header"><div class="step-number">Phần Mở Đầu & Mục Lục</div></div>
                 <div class="step-body bilingual-row"> 
                     <div class="text-de"> <span class="section-label">🌐 BẢN GỐC</span>
                         <div class="article-title">${modauGoc.title}</div>
@@ -170,76 +180,59 @@
             `;
             contentDiv.appendChild(introBox);
 
-            // 2. DANH SÁCH CÁC PHẦN MỞ RỘNG CẦN QUÉT
-            // Đã bổ sung Ingredients và chia class riêng để tô màu
+            // TẬP HỢP CÁC ID CỦA NHIỀU NGÔN NGỮ (Anh, Đức, Việt)
             const cacPhanKhamPha = [
-                { id: '#ingredients, .ingredients', title: '🥗 Nguyên liệu (Ingredients)', cssClass: 'ingredient-box' },
-                { id: '#tips, .tips', title: '💡 Lời khuyên (Tips)', cssClass: 'extra-box' },
-                { id: '#warnings, .warnings', title: '⚠️ Cảnh báo (Warnings)', cssClass: 'extra-box' },
-                { id: '#thingsyoullneed, .thingsyoullneed', title: '🛠️ Những thứ bạn cần', cssClass: 'extra-box' },
-                { id: '#qa, .qa_container', title: '❓ Hỏi đáp (Q&A)', cssClass: 'extra-box' },
-                { id: '#references, .references', title: '🔗 Nguồn & Tham khảo', cssClass: 'extra-box' }
+                { ids: '#ingredients, .ingredients, #Zubereitungen, .Zubereitungen, #Zutaten, .Zutaten, #Nguyên_liệu, .Nguyên_liệu', title: '🥗 Nguyên liệu / Chuẩn bị', cssClass: 'ingredient-box' },
+                { ids: '#tips, .tips, #Tipps, .Tipps, #Lời_khuyên, .Lời_khuyên', title: '💡 Lời khuyên (Tips)', cssClass: 'extra-box' },
+                { ids: '#warnings, .warnings, #Warnungen, .Warnungen, #Cảnh_báo, .Cảnh_báo', title: '⚠️ Cảnh báo (Warnings)', cssClass: 'extra-box' },
+                { ids: '#thingsyoullneed, .thingsyoullneed, #Was_du_brauchst, .Was_du_brauchst, #Những_thứ_bạn_cần, .Những_thứ_bạn_cần', title: '🛠️ Những thứ bạn cần', cssClass: 'extra-box' },
+                { ids: '#qa, .qa_container, #Q_&_A, #F&A', title: '❓ Hỏi đáp (Q&A)', cssClass: 'extra-box' },
+                { ids: '#references, .references, #Referenzen, .Referenzen, #Tham_khảo, .Tham_khảo', title: '🔗 Nguồn & Tham khảo', cssClass: 'extra-box' }
             ];
 
-            // Hàm phụ hỗ trợ render box
+            const renderContentText = (text) => {
+                if (!text) return '<span class="empty-note">Không có phần này.</span>';
+                return danhSoThuTuCau(text);
+            };
+
             const renderBox = (title, textGoc, textDich, boxClass) => {
-                if (!textGoc.trim() && !textDich.trim()) return; // Bỏ qua nếu cả 2 đều trống
+                if (!textGoc && !textDich) return; // Nếu cả 2 web đều không có phần này thì bỏ qua
                 const box = document.createElement('div');
                 box.className = `step-box ${boxClass}`;
                 box.innerHTML = `
                     <div class="step-header"><div class="step-number">${title}</div></div>
                     <div class="step-body bilingual-row">
-                        <div class="text-de"><span class="section-label">🌐 BẢN GỐC</span>${danhSoThuTuCau(textGoc)}</div>
-                        <div class="text-vn"><span class="section-label">🇻🇳 BẢN DỊCH</span>${danhSoThuTuCau(textDich)}</div>
+                        <div class="text-de"><span class="section-label">🌐 BẢN GỐC</span>${renderContentText(textGoc)}</div>
+                        <div class="text-vn"><span class="section-label">🇻🇳 BẢN DỊCH</span>${renderContentText(textDich)}</div>
                     </div>
                 `;
                 contentDiv.appendChild(box);
             };
 
-            // Quét tìm NGUYÊN LIỆU (Thường xuất hiện trước các bước)
+            // 2. QUÉT NGUYÊN LIỆU (Trích xuất trước các bước)
             const nguyenLieu = cacPhanKhamPha[0];
-            const nodeNlGoc = docGoc.querySelector(nguyenLieu.id);
-            const nodeNlDich = docDich.querySelector(nguyenLieu.id);
-            if (nodeNlGoc || nodeNlDich) {
-                renderBox(
-                    nguyenLieu.title, 
-                    nodeNlGoc ? nodeNlGoc.innerText : 'Không có.', 
-                    nodeNlDich ? nodeNlDich.innerText : 'Không có.',
-                    nguyenLieu.cssClass
-                );
-            }
+            const textNlGoc = layNoiDungPhan(docGoc, nguyenLieu.ids);
+            const textNlDich = layNoiDungPhan(docDich, nguyenLieu.ids);
+            renderBox(nguyenLieu.title, textNlGoc, textNlDich, nguyenLieu.cssClass);
 
-            // 3. LẤY CÁC BƯỚC (STEPS) CHÍNH
+            // 3. QUÉT CÁC BƯỚC (STEPS)
             const stepsGoc = docGoc.querySelectorAll('.step');
             const stepsDich = docDich.querySelectorAll('.step');
             const maxSteps = Math.min(stepsGoc.length, stepsDich.length);
 
             for (let i = 0; i < maxSteps; i++) {
-                renderBox(
-                    `Bước ${i + 1}`,
-                    stepsGoc[i].innerText,
-                    stepsDich[i].innerText,
-                    ''
-                );
+                renderBox(`Bước ${i + 1}`, stepsGoc[i].innerText, stepsDich[i].innerText, '');
             }
 
-            // 4. LẤY CÁC PHẦN PHỤ LỤC CÒN LẠI (Tips, Warnings...)
+            // 4. QUÉT CÁC PHẦN CÒN LẠI (Lời khuyên, Cảnh báo...)
             for (let i = 1; i < cacPhanKhamPha.length; i++) {
                 const phan = cacPhanKhamPha[i];
-                const nodeGoc = docGoc.querySelector(phan.id);
-                const nodeDich = docDich.querySelector(phan.id);
-
-                if (nodeGoc || nodeDich) {
-                    renderBox(
-                        phan.title, 
-                        nodeGoc ? nodeGoc.innerText : 'Không có.', 
-                        nodeDich ? nodeDich.innerText : 'Không có.',
-                        phan.cssClass
-                    );
-                }
+                const textGoc = layNoiDungPhan(docGoc, phan.ids);
+                const textDich = layNoiDungPhan(docDich, phan.ids);
+                renderBox(phan.title, textGoc, textDich, phan.cssClass);
             }
 
-            statusDiv.innerHTML = `<span class="success">✅ Hoàn tất! Đã quét Mở đầu, Nguyên liệu, ${maxSteps} bước và các mục bổ sung.</span>`;
+            statusDiv.innerHTML = `<span class="success">✅ Hoàn tất! Đã quét xuyên qua các ID ẩn của ngôn ngữ.</span>`;
 
         } catch (error) {
             statusDiv.innerHTML = `<span class="error">❌ Có lỗi xảy ra: ${error.message}</span>`;
