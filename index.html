@@ -198,12 +198,14 @@
             contentDiv.appendChild(introBox);
 
             // TẬP HỢP CÁC ID CỦA NHIỀU NGÔN NGỮ (Anh, Đức, Việt)
+            // TẬP HỢP CÁC ID CỦA NHIỀU NGÔN NGỮ (Anh, Đức, Việt)
             const cacPhanKhamPha = [
                 { ids: '#ingredients, .ingredients, #Zubereitungen, .Zubereitungen, #Zutaten, .Zutaten, #Nguyên_liệu, .Nguyên_liệu', title: '🥗 Nguyên liệu / Chuẩn bị', cssClass: 'ingredient-box' },
                 { ids: '#tips, .tips, #Tipps, .Tipps, #Lời_khuyên, .Lời_khuyên', title: '💡 Lời khuyên (Tips)', cssClass: 'extra-box' },
                 { ids: '#warnings, .warnings, #Warnungen, .Warnungen, #Cảnh_báo, .Cảnh_báo', title: '⚠️ Cảnh báo (Warnings)', cssClass: 'extra-box' },
                 { ids: '#thingsyoullneed, .thingsyoullneed, #Was_du_brauchst, .Was_du_brauchst, #Những_thứ_bạn_cần, .Những_thứ_bạn_cần', title: '🛠️ Những thứ bạn cần', cssClass: 'extra-box' },
-                { ids: '#qa, .qa_container, #Q_&_A, #F&A', title: '❓ Hỏi đáp (Q&A)', cssClass: 'extra-box' },
+                // 👇 Đã sửa dòng dưới này: Bỏ dấu & đi để tránh lỗi
+                { ids: '#qa, .qa_container, #Q_A, #F_A', title: '❓ Hỏi đáp (Q&A)', cssClass: 'extra-box' }, 
                 { ids: '#references, .references, #Referenzen, .Referenzen, #Tham_khảo, .Tham_khảo', title: '🔗 Nguồn & Tham khảo', cssClass: 'extra-box' }
             ];
 
