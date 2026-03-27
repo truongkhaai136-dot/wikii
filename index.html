@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Công cụ ghép song ngữ WikiHow</title>
+    <title>Công cụ ghép song ngữ WikiHow Pro</title>
     <style>
         body { font-family: Arial, sans-serif; background-color: #f4f7f6; padding: 20px; line-height: 1.6; }
         .container { max-width: 1000px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
@@ -16,33 +16,20 @@
         
         .step-box { border: 1px solid #ddd; border-radius: 6px; margin-top: 20px; padding: 15px; background-color: #fafafa; }
         .intro-box { background-color: #e8f4f8; border-color: #b3e5fc; }
-        .extra-box { background-color: #fff9e6; border-color: #ffe082; } /* Màu riêng cho phần Tips/Warnings */
+        .extra-box { background-color: #fff9e6; border-color: #ffe082; }
+        .ingredient-box { background-color: #e8f5e9; border-color: #a5d6a7; } /* Màu xanh lá cho Nguyên liệu */
         
         /* Bố cục chia đôi */
-        .bilingual-row {
-            display: flex;
-            gap: 20px;
-            align-items: flex-start;
-        }
-        .text-de, .text-vn {
-            flex: 1;
-            min-width: 0;
-        }
+        .bilingual-row { display: flex; gap: 20px; align-items: flex-start; }
+        .text-de, .text-vn { flex: 1; min-width: 0; }
         
         .step-number {
-            font-size: 1.2em;
-            font-weight: bold;
-            color: #0073e6;
-            margin-bottom: 15px;
-            border-bottom: 2px solid #0073e6;
-            padding-bottom: 5px;
-            display: block;
-            text-align: center;
-            width: fit-content;
-            margin-left: auto;
-            margin-right: auto;
+            font-size: 1.2em; font-weight: bold; color: #0073e6; margin-bottom: 15px;
+            border-bottom: 2px solid #0073e6; padding-bottom: 5px; display: block;
+            text-align: center; width: fit-content; margin-left: auto; margin-right: auto;
         }
-        .extra-box .step-number { color: #d35400; border-color: #d35400; } /* Đổi màu tiêu đề phần phụ */
+        .extra-box .step-number { color: #d35400; border-color: #d35400; }
+        .ingredient-box .step-number { color: #2e7d32; border-color: #2e7d32; }
 
         .text-de { font-weight: bold; color: #2c3e50; }
         .text-vn { color: #555; border-left: 1px solid #eee; padding-left: 20px; }
@@ -54,21 +41,13 @@
         
         .sentence-item { margin: 8px 0; line-height: 1.8; }
         .sentence-num {
-            display: inline-block;
-            background-color: #ffeb3b;
-            color: #d35400;
-            font-size: 0.85em;
-            font-weight: bold;
-            padding: 2px 8px;
-            border-radius: 4px;
-            margin-right: 8px;
-            box-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-            vertical-align: text-bottom;
+            display: inline-block; background-color: #ffeb3b; color: #d35400; font-size: 0.85em;
+            font-weight: bold; padding: 2px 8px; border-radius: 4px; margin-right: 8px;
+            box-shadow: 1px 1px 2px rgba(0,0,0,0.1); vertical-align: text-bottom;
         }
         .section-label { font-size: 0.9em; color: #888; text-transform: uppercase; margin-bottom: 10px; display: block; font-weight: normal;}
         .article-title { font-size: 1.4em; color: #c0392b; margin-bottom: 10px; text-transform: uppercase; font-weight: bold;}
 
-        /* CSS MỚI: Tối ưu cho màn hình nhỏ (Điện thoại) */
         @media (max-width: 768px) {
             .bilingual-row { flex-direction: column; }
             .text-vn { border-left: none; padding-left: 0; margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 20px; }
@@ -78,9 +57,9 @@
 <body>
 
 <div class="container">
-    <h1>Công cụ ghép song ngữ WikiHow</h1>
-    <p style="text-align: center; color: #555; font-size: 0.9em;">
-        <i>Tự động ghép: Mở đầu ➔ Các bước ➔ Lời khuyên ➔ Cảnh báo</i>
+    <h1>Công cụ ghép song ngữ WikiHow Pro</h1>
+    <p style="text-align: center; color: #d35400; font-size: 0.9em;">
+        <i>⚠️ Hãy chắc chắn bạn đã BẬT tiện ích "Allow CORS" trên trình duyệt nhé!</i>
     </p>
     
     <div class="input-group">
@@ -99,18 +78,18 @@
 </div>
 
 <script>
-    // Hàm fetch có tích hợp sẵn CorsProxy để không cần bật Allow CORS thủ công
+    // Trở lại dùng Fetch trực tiếp để tránh lỗi 403 từ Proxy (Yêu cầu bật Allow CORS extension)
     async function fetchHtml(url) {
-        // Trở lại cách lấy trực tiếp - BẮT BUỘC BẬT TIỆN ÍCH ALLOW CORS BÊN NGOÀI
         const response = await fetch(url);
         if (!response.ok) {
-            throw new Error(`Mã lỗi: ${response.status}. Hãy chắc chắn bạn đã BẬT tiện ích Allow CORS trên trình duyệt!`);
+            throw new Error(`Mã lỗi: ${response.status}. Hãy chắc chắn tiện ích Allow CORS đang BẬT!`);
         }
         const htmlText = await response.text();
         const parser = new DOMParser();
         return parser.parseFromString(htmlText, "text/html");
     }
 
+    // Hàm tách câu đã được nâng cấp để xử lý tốt Nguyên liệu & List không có dấu chấm
     function danhSoThuTuCau(text) {
         if (!text) return '';
         let lines = text.split('\n'); 
@@ -121,8 +100,15 @@
             let trimmed = line.trim();
             if (!trimmed) return;
 
+            // Nếu dòng là một tiêu đề phụ ngắn hoặc không chứa dấu chấm/hỏi/than (như danh sách nguyên liệu)
+            if (!/[.?!]/.test(trimmed) || trimmed.length < 25) {
+                resultHtml += `<div class="sentence-item"><span class="sentence-num">${count}</span>${trimmed}</div>`;
+                count++;
+                return;
+            }
+
+            // Tách các câu bình thường
             let sentences = trimmed.match(/.*?[.?!]+(?:["'”]*)(?:\s+|$)|.+/g);
-            
             if (sentences) {
                 sentences.forEach(s => {
                     let sTrim = s.trim();
@@ -136,15 +122,11 @@
         return resultHtml;
     }
 
+    // Lấy toàn bộ khối Intro (bao gồm cả Mục lục)
     function layTieuDeVaMoDau(doc) {
         let title = doc.querySelector('h1') ? doc.querySelector('h1').innerText.trim() : 'Không tìm thấy Tiêu đề';
-        let introParagraphs = doc.querySelectorAll('#intro p');
-        let introText = '';
-        if (introParagraphs.length > 0) {
-            introParagraphs.forEach(p => introText += p.innerText + '\n');
-        } else {
-            introText = doc.querySelector('#intro') ? doc.querySelector('#intro').innerText.trim() : '';
-        }
+        let introNode = doc.querySelector('#intro') || doc.querySelector('.mf-section-0');
+        let introText = introNode ? introNode.innerText.trim() : '';
         return { title, introText };
     }
 
@@ -159,13 +141,13 @@
             return;
         }
 
-        statusDiv.innerHTML = '<span class="loading">Đang lấy dữ liệu và bóc tách (Có thể mất vài giây)... ⚡</span>';
+        statusDiv.innerHTML = '<span class="loading">Đang phân tích bài viết đa định dạng... ⚡</span>';
         contentDiv.innerHTML = ''; 
 
         try {
             const [docGoc, docDich] = await Promise.all([fetchHtml(urlGoc), fetchHtml(urlDich)]);
 
-            // 1. LẤY TIÊU ĐỀ VÀ PHẦN MỞ ĐẦU
+            // 1. LẤY MỞ ĐẦU (Bao gồm Mục lục)
             const modauGoc = layTieuDeVaMoDau(docGoc);
             const modauDich = layTieuDeVaMoDau(docDich);
 
@@ -173,7 +155,7 @@
             introBox.className = 'step-box intro-box';
             introBox.innerHTML = `
                 <div class="step-header">
-                    <div class="step-number">Phần Mở Đầu</div>
+                    <div class="step-number">Phần Mở Đầu & Mục Lục</div>
                 </div>
                 <div class="step-body bilingual-row"> 
                     <div class="text-de"> <span class="section-label">🌐 BẢN GỐC</span>
@@ -188,71 +170,76 @@
             `;
             contentDiv.appendChild(introBox);
 
-            // 2. LẤY CÁC BƯỚC (STEPS)
+            // 2. DANH SÁCH CÁC PHẦN MỞ RỘNG CẦN QUÉT
+            // Đã bổ sung Ingredients và chia class riêng để tô màu
+            const cacPhanKhamPha = [
+                { id: '#ingredients, .ingredients', title: '🥗 Nguyên liệu (Ingredients)', cssClass: 'ingredient-box' },
+                { id: '#tips, .tips', title: '💡 Lời khuyên (Tips)', cssClass: 'extra-box' },
+                { id: '#warnings, .warnings', title: '⚠️ Cảnh báo (Warnings)', cssClass: 'extra-box' },
+                { id: '#thingsyoullneed, .thingsyoullneed', title: '🛠️ Những thứ bạn cần', cssClass: 'extra-box' },
+                { id: '#qa, .qa_container', title: '❓ Hỏi đáp (Q&A)', cssClass: 'extra-box' },
+                { id: '#references, .references', title: '🔗 Nguồn & Tham khảo', cssClass: 'extra-box' }
+            ];
+
+            // Hàm phụ hỗ trợ render box
+            const renderBox = (title, textGoc, textDich, boxClass) => {
+                if (!textGoc.trim() && !textDich.trim()) return; // Bỏ qua nếu cả 2 đều trống
+                const box = document.createElement('div');
+                box.className = `step-box ${boxClass}`;
+                box.innerHTML = `
+                    <div class="step-header"><div class="step-number">${title}</div></div>
+                    <div class="step-body bilingual-row">
+                        <div class="text-de"><span class="section-label">🌐 BẢN GỐC</span>${danhSoThuTuCau(textGoc)}</div>
+                        <div class="text-vn"><span class="section-label">🇻🇳 BẢN DỊCH</span>${danhSoThuTuCau(textDich)}</div>
+                    </div>
+                `;
+                contentDiv.appendChild(box);
+            };
+
+            // Quét tìm NGUYÊN LIỆU (Thường xuất hiện trước các bước)
+            const nguyenLieu = cacPhanKhamPha[0];
+            const nodeNlGoc = docGoc.querySelector(nguyenLieu.id);
+            const nodeNlDich = docDich.querySelector(nguyenLieu.id);
+            if (nodeNlGoc || nodeNlDich) {
+                renderBox(
+                    nguyenLieu.title, 
+                    nodeNlGoc ? nodeNlGoc.innerText : 'Không có.', 
+                    nodeNlDich ? nodeNlDich.innerText : 'Không có.',
+                    nguyenLieu.cssClass
+                );
+            }
+
+            // 3. LẤY CÁC BƯỚC (STEPS) CHÍNH
             const stepsGoc = docGoc.querySelectorAll('.step');
             const stepsDich = docDich.querySelectorAll('.step');
             const maxSteps = Math.min(stepsGoc.length, stepsDich.length);
 
             for (let i = 0; i < maxSteps; i++) {
-                let textGocHtml = danhSoThuTuCau(stepsGoc[i].innerText);
-                let textDichHtml = danhSoThuTuCau(stepsDich[i].innerText);
-
-                const stepBox = document.createElement('div');
-                stepBox.className = 'step-box';
-                stepBox.innerHTML = `
-                    <div class="step-header">
-                        <div class="step-number">Bước ${i + 1}</div>
-                    </div>
-                    <div class="step-body bilingual-row"> 
-                        <div class="text-de"> <span class="section-label">🌐 BẢN GỐC</span>
-                            ${textGocHtml}
-                        </div>
-                        <div class="text-vn"> <span class="section-label">🇻🇳 BẢN DỊCH</span>
-                            ${textDichHtml}
-                        </div>
-                    </div>
-                `;
-                contentDiv.appendChild(stepBox);
+                renderBox(
+                    `Bước ${i + 1}`,
+                    stepsGoc[i].innerText,
+                    stepsDich[i].innerText,
+                    ''
+                );
             }
 
-            // 3. LẤY CÁC PHẦN PHỤ LỤC (Tips, Warnings, Things You'll Need)
-            const phanPhu = [
-                { id: '#tips, .tips', title: '💡 Lời khuyên (Tips)' },
-                { id: '#warnings, .warnings', title: '⚠️ Cảnh báo (Warnings)' },
-                { id: '#thingsyoullneed, .thingsyoullneed', title: '🛠️ Những thứ bạn cần' }
-            ];
-
-            phanPhu.forEach(phan => {
+            // 4. LẤY CÁC PHẦN PHỤ LỤC CÒN LẠI (Tips, Warnings...)
+            for (let i = 1; i < cacPhanKhamPha.length; i++) {
+                const phan = cacPhanKhamPha[i];
                 const nodeGoc = docGoc.querySelector(phan.id);
                 const nodeDich = docDich.querySelector(phan.id);
 
-                // Nếu có ít nhất 1 bản có phần này thì tiến hành lấy
                 if (nodeGoc || nodeDich) {
-                    const textGoc = nodeGoc ? nodeGoc.innerText : 'Không có phần này ở bản gốc.';
-                    const textDich = nodeDich ? nodeDich.innerText : 'Không có phần này ở bản dịch.';
-
-                    const box = document.createElement('div');
-                    box.className = 'step-box extra-box';
-                    box.innerHTML = `
-                        <div class="step-header">
-                            <div class="step-number">${phan.title}</div>
-                        </div>
-                        <div class="step-body bilingual-row">
-                            <div class="text-de">
-                                <span class="section-label">🌐 BẢN GỐC</span>
-                                ${danhSoThuTuCau(textGoc)}
-                            </div>
-                            <div class="text-vn">
-                                <span class="section-label">🇻🇳 BẢN DỊCH</span>
-                                ${danhSoThuTuCau(textDich)}
-                            </div>
-                        </div>
-                    `;
-                    contentDiv.appendChild(box);
+                    renderBox(
+                        phan.title, 
+                        nodeGoc ? nodeGoc.innerText : 'Không có.', 
+                        nodeDich ? nodeDich.innerText : 'Không có.',
+                        phan.cssClass
+                    );
                 }
-            });
+            }
 
-            statusDiv.innerHTML = `<span class="success">✅ Thành công! Đã ghép Mở đầu, ${maxSteps} bước và các phần phụ.</span>`;
+            statusDiv.innerHTML = `<span class="success">✅ Hoàn tất! Đã quét Mở đầu, Nguyên liệu, ${maxSteps} bước và các mục bổ sung.</span>`;
 
         } catch (error) {
             statusDiv.innerHTML = `<span class="error">❌ Có lỗi xảy ra: ${error.message}</span>`;
